@@ -1,0 +1,42 @@
+services:
+  deployer:
+    build: .
+    depends_on:
+      - optimism
+      - arbitrum
+    command: npm run deployAndSleep
+    environment:
+      - OPTIMISM_RPC=http://optimism:8545
+      - ARBITRUM_RPC=http://arbitrum:8545
+    volumes:
+      - ./deployments:/usr/src/app/deployments
+      - ./tasks:/usr/src/app/tasks
+  optimism:
+    restart: always
+    image: trufflesuite/ganache:latest
+    command: >
+      --chain.chainId 10
+      -f ${OPTIMISM_RPC}
+      -v --logging.debug
+      -m "baby baby baby baby baby baby baby baby baby baby baby baby"
+    ports:
+      - 0.0.0.0:33330:8545
+  arbitrum:
+    restart: always
+    image: trufflesuite/ganache:latest
+    command: >
+      --chain.chainId 42161
+      -f ${ARBITRUM_RPC}
+      -v --logging.debug
+      -m "baby baby baby baby baby baby baby baby baby baby baby baby"
+      --wallet.unlockedAccounts 0xf89d7b9c864f589bbF53a82105107622B35EaA40
+      --wallet.unlockedAccounts 0xC948eB5205bDE3e18CAc4969d6ad3a56ba7B2347
+      --wallet.unlockedAccounts 0xa19ed0aE46e89461e56063f1eD268a0dc225745f
+      --wallet.unlockedAccounts 0x5F153A7d31b315167Fe41dA83acBa1ca7F86E91d
+      --wallet.unlockedAccounts 0x4a4651b31d747d1ddbddadcf1b1e24a5f6dcc7b0
+      --wallet.unlockedAccounts 0x0000000000000000000000000000000000000001
+      --wallet.unlockedAccounts 0x156E6C5a2Fac34bB2Fcf2Ac1bbAA0E75BDE3aC4F
+      --wallet.unlockedAccounts 0x68FEb25d10725EE055718305e89802478D1A661b
+
+    ports:
+      - 0.0.0.0:33331:8545
