@@ -20,11 +20,8 @@ task("deploy:OracleAggregator", "Deploy oracle aggregator")
         deployments["OracleAggregator"] = oracleAggregator.address;
         writeFileSync(deploymentsFilePath, JSON.stringify(deployments, null, 2))
 
-
-        const constructorArgsFilePath = `./deployments/${hre.network.name}-OracleAggregator-constructorArgs.js`;
-        writeFileSync(`./deployments/${hre.network.name}-OracleAggregator-deploymentParams.js`,
-            `module.exports = [${JSON.stringify(taskArgs.oracles)}]`
-        )
+        const constructorArgsFilePath = `./deployments/${hre.network.name}-constructorArgs.OracleAggregator.js`;
+        writeFileSync(constructorArgsFilePath, `module.exports = [${JSON.stringify(taskArgs.oracles)}]`)
 
         console.log("Commands for verifications:");
         console.log(`npx hardhat --network ${hre.network.name} verify --constructor-args ${constructorArgsFilePath} ${oracleAggregator.address}`);

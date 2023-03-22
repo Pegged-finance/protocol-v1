@@ -37,8 +37,21 @@ task("deploy:Market", "Deploy market")
                 deployments[`${symbol}`] = cErc20.address;
                 writeFileSync(deploymentsFilePath, JSON.stringify(deployments, null, 2))
 
+                const constructorArgsFilePath = `./deployments/${hre.network.name}-constructorArgs.${symbol}.js`;
+                writeFileSync(constructorArgsFilePath, `
+                        module.exports = [
+                                ${token.address},
+                                ${comptroller.address},
+                                ${taskArgs.interestRateModel},
+                                ${hre.ethers.utils.parseEther("1")},
+                                "${name}",
+                                ${symbol},
+                                18,
+                                ${await comptroller.admin()}
+                        ]`)
+
                 console.log("Commands for verifications:");
-                console.log(`npx hardhat --network ${hre.network.name} verify ${cErc20.address} ${token.address} ${comptroller.address} ${taskArgs.interestRateModel} ${hre.ethers.utils.parseEther("1")} ${name} ${symbol} 18 ${await comptroller.admin()}`);
+                console.log(`npx hardhat --network ${hre.network.name} verify --constructor-args ${constructorArgsFilePath} ${cErc20.address}`);
                 console.log("====");
                 console.log("")
         })
