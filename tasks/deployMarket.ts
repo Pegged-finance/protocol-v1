@@ -13,8 +13,11 @@ task("deploy:Market", "Deploy market")
 
                 const comptroller = await hre.ethers.getContractAt("Comptroller", taskArgs.unitroller);
 
-                const CErc20 = await hre.ethers.getContractFactory("CErc20Immutable");
-                const cErc20 = await CErc20.deploy(
+                const Delegate = await hre.ethers.getContractFactory("CErc20Delegate");
+                const delegate = await Delegate.deploy()
+
+                const Delegator = await hre.ethers.getContractFactory("CErc20Delegator");
+                const delegator = await Delegator.deploy(
                         token.address,
                         comptroller.address,
                         taskArgs.interestRateModel,
@@ -22,19 +25,20 @@ task("deploy:Market", "Deploy market")
                         name,
                         symbol,
                         18,
-                        await comptroller.admin()
+                        await comptroller.admin(),
+                        delegate.address,
+                        []
                 )
+                console.log(`${symbol} deployed, address: ${delegator.address}`);
 
-                console.log(`${symbol} deployed, address: ${cErc20.address}`);
-
-                await (await comptroller._supportMarket(cErc20.address)).wait();
-                // await (await comptroller._setCollateralFactor(cErc20.address, hre.ethers.utils.parseEther("0.5"))).wait();
+                await (await comptroller._supportMarket(delegator.address)).wait();
                 console.log(`Comptroller 🤝 ${symbol}`)
 
 
                 const deploymentsFilePath = `./deployments/${hre.network.name}.json`;
                 const deployments = JSON.parse(readFileSync(deploymentsFilePath, "utf-8"));
-                deployments[`${symbol}`] = cErc20.address;
+                deployments[`${symbol}`] = delegator.address;
+                deployments[`${symbol}-implementation`] = delegate.address;
                 writeFileSync(deploymentsFilePath, JSON.stringify(deployments, null, 2))
 
                 const constructorArgsFilePath = `./deployments/${hre.network.name}-constructorArgs.${symbol}.js`;
@@ -47,11 +51,14 @@ task("deploy:Market", "Deploy market")
                                 "${name}",
                                 ${symbol},
                                 18,
-                                ${await comptroller.admin()}
+                                ${await comptroller.admin()},
+                                ${delegate.address},
+                                []
                         ]`)
 
                 console.log("Commands for verifications:");
-                console.log(`npx hardhat --network ${hre.network.name} verify --constructor-args ${constructorArgsFilePath} ${cErc20.address}`);
+                console.log(`npx hardhat --network ${hre.network.name} verify ${delegate.address}`);
+                console.log(`npx hardhat --network ${hre.network.name} verify --constructor-args ${constructorArgsFilePath} ${delegator.address}`);
                 console.log("====");
                 console.log("")
         })
