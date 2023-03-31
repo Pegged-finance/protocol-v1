@@ -5,7 +5,6 @@ import "../CErc20.sol";
 import "../CToken.sol";
 import "../PriceOracle.sol";
 import "../EIP20Interface.sol";
-import "../Governance/Peg.sol";
 
 interface ComptrollerLensInterface {
     function markets(address) external view returns (bool, uint);

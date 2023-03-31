@@ -7,7 +7,7 @@ import "./PriceOracle.sol";
 import "./ComptrollerInterface.sol";
 import "./ComptrollerStorage.sol";
 import "./Unitroller.sol";
-import "./Governance/Peg.sol";
+import "./Governance/Pegg.sol";
 
 /**
  * @title Compound's Comptroller Contract
@@ -36,7 +36,7 @@ contract Comptroller is ComptrollerV7Storage, ComptrollerInterface, ComptrollerE
     event NewPriceOracle(PriceOracle oldPriceOracle, PriceOracle newPriceOracle);
 
     /// @notice Emitted when PEG token is changed
-    event NewPeg(Peg oldPeg, Peg newPeg);
+    event NewPeg(Pegg oldPeg, Pegg newPeg);
 
     /// @notice Emitted when pause guardian is changed
     event NewPauseGuardian(address oldPauseGuardian, address newPauseGuardian);
@@ -81,7 +81,7 @@ contract Comptroller is ComptrollerV7Storage, ComptrollerInterface, ComptrollerE
     uint224 public constant compInitialIndex = 1e36;
 
     // address of the PEG token
-    Peg public PEG;
+    Pegg public PEG;
 
     // closeFactorMantissa must be strictly greater than this value
     uint internal constant closeFactorMinMantissa = 0.05e18; // 0.05
@@ -851,14 +851,14 @@ contract Comptroller is ComptrollerV7Storage, ComptrollerInterface, ComptrollerE
       * @dev Admin function to set a new governance token address
       * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
       */
-    function _setPeg(Peg newPeg) public returns (uint) {
+    function _setPeg(Pegg newPeg) public returns (uint) {
         // Check caller is admin
         if (msg.sender != admin) {
             return fail(Error.UNAUTHORIZED, FailureInfo.SET_PEG_OWNER_CHECK);
         }
 
         // Track the old PEG for the comptroller
-        Peg oldPeg = PEG;
+        Pegg oldPeg = PEG;
 
         // Set comptroller's PEG to newPeg
         PEG = newPeg;
