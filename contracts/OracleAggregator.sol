@@ -26,13 +26,13 @@ contract OracleAggregator is PriceOracle {
         address underlying = CErc20(address(cToken)).underlying();
 
         address oracle = getOracleByUnderlying[underlying];
-        try IOracle(oracle).getPrice() returns (uint256 price) {
-            uint256 underlyingDecimals = EIP20Interface(underlying).decimals();
-            return price * (10 ** (18 - underlyingDecimals));
-        } catch {
-            // If oracle == address(0) or oracle raise internal error
-            // we return 0, comptroller do price checks, its ok
+        if (oracle == address(0)) {
+            // comptroller do price checks, its ok
             return 0;
         }
+
+        uint256 underlyingDecimals = EIP20Interface(underlying).decimals();
+        uint256 price = IOracle(oracle).getPrice();
+        return price * (10 ** (18 - underlyingDecimals));
     }
 }
